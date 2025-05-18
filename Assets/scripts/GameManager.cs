@@ -1,42 +1,50 @@
-using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-
-    public block[] blocks;
     public GameObject gameOverUI;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public GameObject gameClearUI; // ← 追加
 
-    // Update is called once per frame
+    private bool isGameCleared = false;
+
     void Update()
     {
-        if (DestroyAllBlocks()==true)
+        if (!isGameCleared && DestroyAllBlocks())
         {
+            isGameCleared = true;
             Debug.Log("ゲームクリア");
+
+            // ゲームクリアUI表示
+            if (gameClearUI != null)
+            {
+                gameClearUI.SetActive(true);
+            }
+
+            // 全ボールを停止
+            StopAllBalls();
         }
     }
 
     private bool DestroyAllBlocks()
     {
-        foreach(block b in blocks)
-        {
-            if (b != null) {
-                return false; 
-            }
-        }
-        return true;
+        block[] remainingBlocks = FindObjectsOfType<block>();
+        return remainingBlocks.Length == 0;
     }
+
+    private void StopAllBalls()
+    {
+        ball[] balls = FindObjectsOfType<ball>();
+        foreach (ball b in balls)
+        {
+            b.StopBall();
+        }
+    }
+
     public void GameOver()
     {
         Debug.Log("ゲームオーバー");
         gameOverUI.SetActive(true);
-
     }
 
     public void GameRetry()
